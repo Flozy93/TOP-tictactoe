@@ -13,7 +13,7 @@ function gameboard() {
 
   const getBoard = () => board;
 
-  const markBoard = (index, turn) => {
+  const markBoardAndCheckResult = (index, turn) => {
     if (board[index] === "") {
       board[index] = turn;
     } else {
@@ -44,7 +44,7 @@ function gameboard() {
     board = ["", "", "", "", "", "", "", "", ""];
   };
 
-  return { getBoard, markBoard, resetBoard, checkWinner };
+  return { getBoard, markBoardAndCheckResult, resetBoard, checkWinner };
 }
 
 function player(name, symbol) {
@@ -80,7 +80,7 @@ function flow() {
       return;
     }
 
-    let result = game.markBoard(index, turn.getSymbol());
+    let result = game.markBoardAndCheckResult(index, turn.getSymbol());
 
     console.log(game.getBoard());
 
@@ -107,7 +107,7 @@ function flow() {
     win = false;
     draw = false;
     turn = P1;
-    console.log("Game reset!");
+    console.log("Game has been reset!");
   };
 
   return {
@@ -124,10 +124,73 @@ function flow() {
   };
 }
 
-const game = flow();
-game.playTurn(0);
-game.playTurn(1);
-game.playTurn(4);
-game.playTurn(2);
-game.playTurn(8);
-game.resetGame();
+let gameInstance = null;
+
+// Buttons
+
+const startBtn = document.querySelector("#game-start");
+const resetBtn = document.querySelector("#game-reset");
+const turnInfo = document.querySelector("#turn-information");
+const cells = document.querySelectorAll(".cell-button");
+const gameTitle = document.querySelector("#game-title");
+
+// Start game
+
+startBtn.addEventListener("click", () => {
+  if (gameInstance) {
+    console.log("Game is already running! Please reset using reset button.");
+    return;
+  }
+  gameInstance = flow();
+  gameTitle.innerHTML =
+    'Tic Tac Toe <span style="color: #27B311"> (Game is running) </span>';
+  console.log("Game started!");
+  turnInfo.innerHTML = `To play : ${gameInstance.getTurn().getName()}`;
+});
+
+cells.forEach((cell, index) =>
+  cell.addEventListener("click", () => {
+    if (!gameInstance) {
+      alert("You must click on 'Start game' to begin playing!");
+      return;
+    }
+    if (gameInstance.getWinStatus() || gameInstance.getDrawStatus()) {
+      return;
+    }
+
+    if (cell.innerHTML !== "") {
+      alert("This cell is already occupied!");
+      return;
+    }
+    cell.innerHTML = gameInstance.getTurn().getSymbol();
+    gameInstance.playTurn(index);
+
+    if (!gameInstance.getWinStatus() && !gameInstance.getDrawStatus()) {
+      turnInfo.innerHTML = `To play : ${gameInstance.getTurn().getName()}`;
+    } else {
+      setTimeout(() =>
+        alert(
+          gameInstance.getWinStatus()
+            ? `${gameInstance.getTurn().getName()} wins!`
+            : "It's a draw!"
+        )
+      );
+    }
+  })
+);
+
+resetBtn.addEventListener("click", () => {
+  if (gameInstance === null) {
+    console.log("You cannot reset an inactive game!");
+    return;
+  }
+  if (gameInstance) {
+    gameInstance.resetGame();
+    document.querySelectorAll(".cell-button").forEach((cell) => {
+      cell.innerHTML = "";
+      cell.disabled = false;
+    });
+    gameInstance = null;
+    gameTitle.innerHTML = "Tic Tac Toe game";
+  }
+});

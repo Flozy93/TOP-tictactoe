@@ -1,8 +1,21 @@
+* {
+  font-family: roboto;
+}
+
 .container {
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-columns: 2fr 3fr 2fr;
   grid-template-rows: 1fr 3fr 1fr;
   height: 100vh;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .game-container {
@@ -22,4 +35,19 @@
 .cell-button {
   height: 100%;
   width: 100%;
+  font-size: 40px;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.footer button {
+  height: 40px;
+  width: 100px;
+  margin: 30px;
+  font-size: 15px;
 }
